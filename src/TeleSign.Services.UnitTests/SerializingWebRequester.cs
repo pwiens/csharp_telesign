@@ -9,6 +9,7 @@
 namespace TeleSign.Services.UnitTests
 {
     using System.Net;
+    using System.Net.Http;
     using System.Text;
 
     /// <summary>
@@ -26,9 +27,13 @@ namespace TeleSign.Services.UnitTests
     /// for testing the raw versions of the service.
     /// </para>
     /// </summary>
-    public class SerializingWebRequester : IWebRequester
+    public class SerializingWebRequester : DelegatingHandler
     {
-        public string ReadResponseAsString(WebRequest request)
+        public SerializingWebRequester() : base(new HttpClientHandler())
+        {
+            
+        }
+        public string ReadResponseAsString(HttpRequestMessage request)
         {
             string queryString = request.RequestUri.Query;
 
@@ -41,19 +46,19 @@ namespace TeleSign.Services.UnitTests
             return this.ConstructSerializedString(
                         request.Method,
                         request.RequestUri.AbsolutePath,
-                        request.ContentType,
+                        request.Content.Headers.ContentType.MediaType,
                         queryString);
         }
 
         public string ConstructSerializedString(
-                    string method,
+                    HttpMethod method,
                     string localUriPath,
                     string contentType,
                     string queryString)
         {
             StringBuilder builder = new StringBuilder();
 
-            builder.AppendFormat("Method: {0}\r\n", DefaultIfNull(method));
+            builder.AppendFormat("Method: {0}\r\n", DefaultIfNull(method?.Method));
             builder.AppendFormat("LocalUriPath: {0}\r\n", DefaultIfNull(localUriPath));
             builder.AppendFormat("ContentType: {0}\r\n", DefaultIfNull(contentType));
             builder.AppendFormat("QueryString: {0}\r\n", DefaultIfNull(queryString));

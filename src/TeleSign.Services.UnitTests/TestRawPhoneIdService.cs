@@ -10,13 +10,15 @@ namespace TeleSign.Services.UnitTests
 {
     using System;
     using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Threading.Tasks;
     using NUnit.Framework;
     using TeleSign.Services.PhoneId;
 
     [TestFixture] 
     public class TestRawPhoneIdService : BaseServiceTest
     {
-        private RawPhoneIdService CreateService(IWebRequester webRequester = null)
+        private RawPhoneIdService CreateService(HttpMessageHandler webRequester = null)
         {
             if (webRequester == null)
             {
@@ -37,194 +39,182 @@ namespace TeleSign.Services.UnitTests
         [Test]
         public void TestStandardRejectsNullNumber()
         {
-            Assert.Throws<ArgumentNullException>(delegate
-            {
-                this.CreateService().StandardLookupRaw(null);
-            });
+            Assert.ThrowsAsync<ArgumentNullException>(() =>
+                this.CreateService().StandardLookupRawAsync(null)
+            );
         }
 
         [Test]
         public void TestContactRejectsNullNumber()
         {
-            Assert.Throws<ArgumentNullException>(delegate
-            {
-                this.CreateService().ContactLookupRaw(null);
-            });
+            Assert.ThrowsAsync<ArgumentNullException>(() =>
+                this.CreateService().ContactLookupRawAsync(null)
+            );
         }
 
         [Test]
         public void TestScoreRejectsNullNumber()
         {
-            Assert.Throws<ArgumentNullException>(delegate
-            {
-                this.CreateService().ScoreLookupRaw(null);
-            });
+            Assert.ThrowsAsync<ArgumentNullException>(() =>
+                this.CreateService().ScoreLookupRawAsync(null)
+            );
         }
 
         [Test]
         public void TestLiveRejectsNullNumber()
         {
-            Assert.Throws<ArgumentNullException>(delegate
-            {
-                this.CreateService().LiveLookupRaw(null);
-            });
+            Assert.ThrowsAsync<ArgumentNullException>(() =>
+                this.CreateService().LiveLookupRawAsync(null)
+            );
         }
 
         [Test]
         public void TestStandardRejectsEmptyNumber()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().StandardLookupRaw(string.Empty);
-            });
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                this.CreateService().StandardLookupRawAsync(string.Empty)
+            );
         }
 
         [Test]
         public void TestContactRejectsEmptyNumber()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().ContactLookupRaw(string.Empty);
-            });
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                this.CreateService().ContactLookupRawAsync(string.Empty)
+            );
         }
 
         [Test]
         public void TestScoreRejectsEmptyNumber()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().ScoreLookupRaw(string.Empty);
-            });
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                this.CreateService().ScoreLookupRawAsync(string.Empty)
+            );
         }
 
         [Test]
         public void TestLiveRejectsEmptyNumber()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().LiveLookupRaw(string.Empty);
-            });
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                this.CreateService().LiveLookupRawAsync(string.Empty)
+            );
         }
 
         [Test]
         public void TestStandardRejectsNumberWithNoDigits()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().StandardLookupRaw("X+#$?");
-            });
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                this.CreateService().StandardLookupRawAsync("X+#$?")
+            );
         }
 
         [Test]
         public void TestContactRejectsNumberWithNoDigits()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().ContactLookupRaw("X+#$?");
-            });
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                this.CreateService().ContactLookupRawAsync("X+#$?")
+            );
         }
 
         [Test]
         public void TestScoreRejectsNumberWithNoDigits()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().ScoreLookupRaw("X+#$?");
-            });
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                this.CreateService().ScoreLookupRawAsync("X+#$?")
+            );
         }
 
         [Test]
         public void TestLiveRejectsNumberWithNoDigits()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().LiveLookupRaw("X+#$?");
-            });
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                this.CreateService().LiveLookupRawAsync("X+#$?")
+            );
         }
 
         [Test]
-        public void TestStandardDoesNotRejectCleanableNumbers()
+        public async Task TestStandardDoesNotRejectCleanableNumbers()
         {
-            this.CreateService().StandardLookupRaw("+61 (08) 9791-1234");
+            await this.CreateService().StandardLookupRawAsync("+61 (08) 9791-1234");
         }
 
         [Test]
-        public void TestContactDoesNotRejectCleanableNumbers()
+        public async Task TestContactDoesNotRejectCleanableNumbers()
         {
-            this.CreateService().ContactLookupRaw("+61 (08) 1111-1234");
+            await this.CreateService().ContactLookupRawAsync("+61 (08) 1111-1234");
         }
 
         [Test]
-        public void TestScoreDoesNotRejectCleanableNumbers()
+        public async Task TestScoreDoesNotRejectCleanableNumbers()
         {
-            this.CreateService().ScoreLookupRaw("+61 (08) 1111-1234");
+            await this.CreateService().ScoreLookupRawAsync("+61 (08) 1111-1234");
         }
 
         [Test]
-        public void TestLiveDoesNotRejectCleanableNumbers()
+        public async Task TestLiveDoesNotRejectCleanableNumbers()
         {
-            this.CreateService().LiveLookupRaw("+61 (08) 1111-1234");
+            await this.CreateService().LiveLookupRawAsync("+61 (08) 1111-1234");
         }
 
         [Test]
-        public void TestStandardWebRequest()
+        public async Task TestStandardWebRequest()
         {
             SerializingWebRequester requester = new SerializingWebRequester();
 
             string expectedResponse = requester.ConstructSerializedString(
-                        "GET",
+                        HttpMethod.Get,
                         "/v1/phoneid/standard/61811111234",
                         null,
                         this.CreateDefaultQueryString());
 
-            string actualResponse = this.CreateService(requester).StandardLookupRaw("61811111234");
+            string actualResponse = await this.CreateService(requester).StandardLookupRawAsync("61811111234");
 
             Assert.AreEqual(expectedResponse, actualResponse);
         }
 
         [Test]
-        public void TestContactWebRequest()
+        public async Task TestContactWebRequest()
         {
             SerializingWebRequester requester = new SerializingWebRequester();
             string expectedResponse = requester.ConstructSerializedString(
-                        "GET",
+                        HttpMethod.Get,
                         "/v1/phoneid/contact/61811111234",
                         null,
                         this.CreateDefaultQueryString());
 
-            string actualResponse = this.CreateService(requester).ContactLookupRaw("61811111234");
+            string actualResponse = await this.CreateService(requester).ContactLookupRawAsync("61811111234");
 
             Assert.AreEqual(expectedResponse, actualResponse);
         }
 
         [Test]
-        public void TestScoreWebRequest()
+        public async Task TestScoreWebRequest()
         {
             SerializingWebRequester requester = new SerializingWebRequester();
 
             string expectedResponse = requester.ConstructSerializedString(
-                        "GET",
+                        HttpMethod.Get,
                         "/v1/phoneid/score/61811111234",
                         null,
                         this.CreateDefaultQueryString());
 
-            string actualResponse = this.CreateService(requester).ScoreLookupRaw("61811111234");
+            string actualResponse = await this.CreateService(requester).ScoreLookupRawAsync("61811111234");
 
             Assert.AreEqual(expectedResponse, actualResponse);
         }
 
         [Test]
-        public void TestLiveWebRequest()
+        public async Task TestLiveWebRequest()
         {
             SerializingWebRequester requester = new SerializingWebRequester();
 
             string expectedResponse = requester.ConstructSerializedString(
-                        "GET",
+                        HttpMethod.Get,
                         "/v1/phoneid/live/61811111234",
                         null,
                         this.CreateDefaultQueryString());
 
-            string actualResponse = this.CreateService(requester).LiveLookupRaw("61811111234");
+            string actualResponse = await this.CreateService(requester).LiveLookupRawAsync("61811111234");
 
             Assert.AreEqual(expectedResponse, actualResponse);
         }
