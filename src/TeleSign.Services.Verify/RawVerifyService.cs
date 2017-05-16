@@ -12,7 +12,9 @@ namespace TeleSign.Services.Verify
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
+    using System.Net.Http;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// <para>
@@ -53,7 +55,7 @@ namespace TeleSign.Services.Verify
         /// <param name="webRequester">The web requester to use.</param>
         public RawVerifyService(
                     TeleSignServiceConfiguration configuration, 
-                    IWebRequester webRequester)
+                    HttpMessageHandler webRequester)
             : base(configuration, webRequester)
         {
         }
@@ -75,15 +77,11 @@ namespace TeleSign.Services.Verify
         /// you supplied a message template.
         /// </param>
         /// <returns>The raw JSON response from the REST API.</returns>
-        public string SmsRaw(
-                    string phoneNumber,
-                    string verifyCode = null,
-                    string messageTemplate = null,
-                    string language = null)
+        public async Task<string> SmsRawAsync(string phoneNumber, string verifyCode = null, string messageTemplate = null, string language = null)
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
 
-            return this.InternalVerify(
+            return await this.InternalVerifyAsync(
                         VerificationMethod.Sms,
                         phoneNumber,
                         verifyCode,
@@ -105,14 +103,11 @@ namespace TeleSign.Services.Verify
         /// you supplied a message template.
         /// </param>
         /// <returns>The raw JSON response from the REST API.</returns>
-        public string CallRaw(
-                    string phoneNumber,
-                    string verifyCode = null,
-                    string language = null)
+        public async Task<string> CallRawAsync(string phoneNumber, string verifyCode = null, string language = null)
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
 
-            return this.InternalVerify(
+            return await this.InternalVerifyAsync(
                         VerificationMethod.Call,
                         phoneNumber,
                         verifyCode,
@@ -160,31 +155,28 @@ namespace TeleSign.Services.Verify
 
         ////    WebRequest request = this.ConstructWebMobileRequest(
         ////                resourceName,
-        ////                "POST",
+        ////                HttpMethod.Post,
         ////                args);
 
         ////    return this.WebRequester.ReadResponseAsString(request);
         ////}
-        
+
         /// <summary>
         /// The TeleSign Verify 2-Way SMS web service allows you to authenticate your users and verify user transactions via two-way Short Message Service (SMS) wireless communication. Verification requests are sent to user’s in a text message, and users return their verification responses by replying to the text message.
         /// </summary>
         /// <param name="phoneNumber">The phone number for the Verify Soft Token request, including country code</param>
-        /// <param name="ucid">
-        /// A string specifying one of the Use Case Codes
-        /// </param>
         /// <param name="message">
         /// The text to display in the body of the text message. You must include the $$CODE$$ placeholder for the verification code somewhere in your message text. TeleSign automatically replaces it with a randomly-generated verification code
         /// </param>
         /// <param name="validityPeriod">
         /// This parameter allows you to place a time-limit on the verification. This provides an extra level of security by restricting the amount of time your end user has to respond (after which, TeleSign automatically rejects their response). Values are expressed as a natural number followed by a lower-case letter that represents the unit of measure. You can use 's' for seconds, 'm' for minutes, 'h' for hours, and 'd' for days
         /// </param>
+        /// <param name="useCaseId"></param>
+        /// <param name="ucid">
+        /// A string specifying one of the Use Case Codes
+        /// </param>
         /// <returns>The raw JSON response from the REST API.</returns>
-        public string TwoWaySmsRaw(
-                    string phoneNumber,
-                    string message,
-            		string validityPeriod = "5m",
-                    string useCaseId = RawVerifyService.DefaultUseCaseId)
+        public async Task<string> TwoWaySmsRawAsync(string phoneNumber, string message, string validityPeriod = "5m", string useCaseId = RawVerifyService.DefaultUseCaseId)
         {
             CheckArgument.NotEmpty(message, "message");
             CheckArgument.NotNullOrEmpty(validityPeriod, "validityPeriod");
@@ -204,12 +196,16 @@ namespace TeleSign.Services.Verify
                         RawVerifyService.VerifyResourceFormatString, 
                         "two_way_sms");
 
-            WebRequest request = this.ConstructWebRequest(
+            HttpRequestMessage request = this.ConstructWebRequest(
                         resourceName,
-                        "POST",
+                        HttpMethod.Post,
                         args);
 
-            return this.WebRequester.ReadResponseAsString(request);
+            var response = await this.HttpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -226,13 +222,11 @@ namespace TeleSign.Services.Verify
         /// you supplied a message template.
         /// </param>
         /// <returns>The raw JSON response from the REST API.</returns>
-        public string PushRaw(
-                    string phoneNumber,
-                    string verifyCode = null)
+        public Task<string> PushRawAsync(string phoneNumber, string verifyCode = null)
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
 
-            return this.InternalVerify(
+            return this.InternalVerifyAsync(
                         VerificationMethod.Push,
                         phoneNumber,
                         verifyCode,
@@ -253,9 +247,7 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object containing information about the status
         /// of the transactation and validity of the code.
         /// </returns>
-        public string StatusRaw(
-                    string referenceId,
-                    string verifyCode = null)
+        public async Task<string> StatusRawAsync(string referenceId, string verifyCode = null)
         {
             CheckArgument.NotNullOrEmpty(referenceId, "referenceId");
 
@@ -271,12 +263,16 @@ namespace TeleSign.Services.Verify
                         RawVerifyService.VerifyResourceFormatString, 
                         referenceId);
 
-            WebRequest request = this.ConstructWebRequest(
+            HttpRequestMessage request = this.ConstructWebRequest(
                         resourceName,
-                        "GET",
+                        HttpMethod.Get,
                         args);
 
-            return this.WebRequester.ReadResponseAsString(request);
+            var response = await this.HttpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -296,12 +292,7 @@ namespace TeleSign.Services.Verify
         /// SMS if you supplied a message template.
         /// </param>
         /// <returns>The raw JSON response for a verify REST API call.</returns>
-        private string InternalVerify(
-                    VerificationMethod verificationMethod,
-                    string phoneNumber,
-                    string verifyCode = null,
-                    string messageTemplate = null,
-                    string language = null)
+        private async Task<string> InternalVerifyAsync(VerificationMethod verificationMethod, string phoneNumber, string verifyCode = null, string messageTemplate = null, string language = null)
         {
             this.CleanupPhoneNumber(phoneNumber);
 
@@ -326,12 +317,16 @@ namespace TeleSign.Services.Verify
                         RawVerifyService.VerifyResourceFormatString, 
                         verificationMethod.ToString().ToLowerInvariant());
 
-            WebRequest request = this.ConstructWebRequest(
+            HttpRequestMessage request = this.ConstructWebRequest(
                         resourceName,
-                        "POST",
+                        HttpMethod.Post,
                         args);
 
-            return this.WebRequester.ReadResponseAsString(request);
+            var response = await this.HttpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         /// <summary>

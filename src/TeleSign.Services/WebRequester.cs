@@ -10,6 +10,7 @@ namespace TeleSign.Services
 {
     using System.IO;
     using System.Net;
+    using System.Net.Http;
 
     /// <summary>
     /// Default implementation of IWebRequester using the built in .NET
@@ -21,35 +22,33 @@ namespace TeleSign.Services
         /// Given a web request - reads the response and returns it all
         /// as a string.
         /// </summary>
-        /// <param name="request">A .NET WebRequest object.</param>
+        /// <param name="response1"></param>
         /// <returns>The response as a string.</returns>
-        public string ReadResponseAsString(WebRequest request)
+        public string ReadResponseAsString(HttpResponseMessage response)
         {
-            try
+            //try
+            //{
+            using (StreamReader reader = new StreamReader(response.Content.ReadAsStreamAsync().Result))
             {
-                request.Timeout = 30000;
-                using (WebResponse response = request.GetResponse())
-                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-                {
-                    return reader.ReadToEnd();
-                }
+                return reader.ReadToEnd();
             }
-            catch (WebException x)
-            {
-                // This error still has content in the body and was not really
-                // a connection failure, but is a failure in what we sent to the
-                // service.
-                if (x.Status == WebExceptionStatus.ProtocolError)
-                {
-                    using (StreamReader reader = new StreamReader(x.Response.GetResponseStream()))
-                    {
-                        string error = reader.ReadToEnd();
-                        return error;
-                    }
-                }
+            //}
+            //catch (WebException x)
+            //{
+            //    // This error still has content in the body and was not really
+            //    // a connection failure, but is a failure in what we sent to the
+            //    // service.
+            //    if (x.Status == WebExceptionStatus.ProtocolError)
+            //    {
+            //        using (StreamReader reader = new StreamReader(x.Response.GetResponseStream()))
+            //        {
+            //            string error = reader.ReadToEnd();
+            //            return error;
+            //        }
+            //    }
 
-                throw;
-            }
+            //    throw;
+            //}
         }
     }
 }

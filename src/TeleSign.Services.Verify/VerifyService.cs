@@ -9,6 +9,8 @@
 namespace TeleSign.Services.Verify
 {
     using System;
+    using System.Net.Http;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The TeleSign Verify service.
@@ -42,7 +44,7 @@ namespace TeleSign.Services.Verify
         /// <param name="responseParser">The parse to use for parsing JSON responses.</param>
         public VerifyService(
                     TeleSignServiceConfiguration configuration, 
-                    IWebRequester webRequester,
+                    HttpMessageHandler webRequester,
                     IVerifyResponseParser responseParser)
             : base(configuration, webRequester)
         {
@@ -58,9 +60,9 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object with the status and returned information
         /// for the transaction.
         /// </returns>
-        public VerifyResponse SendSms(string phoneNumber)
+        public async Task<VerifyResponse> SendSmsAsync(string phoneNumber)
         {
-            return this.SendSms(
+            return await this.SendSmsAsync(
                         phoneNumber,
                         null,
                         null,
@@ -80,11 +82,9 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object with the status and returned information
         /// for the transaction.
         /// </returns>
-        public VerifyResponse SendSms(
-                    string phoneNumber, 
-                    string verifyCode)
+        public async Task<VerifyResponse> SendSmsAsync(string phoneNumber, string verifyCode)
         {
-            return this.SendSms(
+            return await this.SendSmsAsync(
                         phoneNumber, 
                         verifyCode,
                         null,
@@ -108,12 +108,9 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object with the status and returned information
         /// for the transaction.
         /// </returns>
-        public VerifyResponse SendSms(
-                    string phoneNumber,
-                    string verifyCode,
-                    string language)
+        public async Task<VerifyResponse> SendSmsAsync(string phoneNumber, string verifyCode, string language)
         {
-            return this.SendSms(
+            return await this.SendSmsAsync(
                         phoneNumber, 
                         verifyCode, 
                         null, 
@@ -143,16 +140,12 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object with the status and returned information
         /// for the transaction.
         /// </returns>
-        public VerifyResponse SendSms(
-                    string phoneNumber,
-                    string verifyCode,
-                    string messageTemplate,
-                    string language)
+        public async Task<VerifyResponse> SendSmsAsync(string phoneNumber, string verifyCode, string messageTemplate, string language)
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
             this.ValidateCodeFormat(verifyCode);
 
-            string rawResponse = this.SmsRaw(
+            string rawResponse = await this.SmsRawAsync(
                         phoneNumber,
                         verifyCode,
                         messageTemplate,
@@ -206,29 +199,26 @@ namespace TeleSign.Services.Verify
         ////                    x);
         ////    }
         ////}
-        
+
         /// <summary>
         /// The TeleSign Verify 2-Way SMS web service allows you to authenticate your users and verify user transactions via two-way Short Message Service (SMS) wireless communication. Verification requests are sent to user’s in a text message, and users return their verification responses by replying to the text message.
         /// </summary>
         /// <param name="phoneNumber">The phone number for the Verify Soft Token request, including country code</param>
-        /// <param name="ucid">
-        /// A string specifying one of the Use Case Codes
-        /// </param>
         /// <param name="message">
         /// The text to display in the body of the text message. You must include the $$CODE$$ placeholder for the verification code somewhere in your message text. TeleSign automatically replaces it with a randomly-generated verification code
         /// </param>
         /// <param name="validityPeriod">
         /// This parameter allows you to place a time-limit on the verification. This provides an extra level of security by restricting the amount of time your end user has to respond (after which, TeleSign automatically rejects their response). Values are expressed as a natural number followed by a lower-case letter that represents the unit of measure. You can use 's' for seconds, 'm' for minutes, 'h' for hours, and 'd' for days
         /// </param>
+        /// <param name="ucid">
+        /// A string specifying one of the Use Case Codes
+        /// </param>
         /// <returns>The raw JSON response from the REST API.</returns>
-        public VerifyResponse SendTwoWaySms(
-        			string phoneNumber,
-                    string message = null,
-            		string validityPeriod = "5m")
+        public async Task<VerifyResponse> SendTwoWaySmsAsync(string phoneNumber, string message = null, string validityPeriod = "5m")
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
 
-            string rawResponse = this.TwoWaySmsRaw(
+            string rawResponse = await this.TwoWaySmsRawAsync(
                         phoneNumber,
                         message,
             			validityPeriod);
@@ -263,12 +253,9 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object with the status and returned information
         /// for the transaction.
         /// </returns>
-        public VerifyResponse InitiateCall(
-                    string phoneNumber,
-                    string verifyCode = null,
-                    string language = "en")
+        public async Task<VerifyResponse> InitiateCallAsync(string phoneNumber, string verifyCode = null, string language = "en")
         {
-            string rawResponse = this.CallRaw(
+            string rawResponse = await this.CallRawAsync(
                         phoneNumber,
                         verifyCode,
                         language);
@@ -302,11 +289,9 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object with the status and returned information
         /// for the transaction.
         /// </returns>
-        public VerifyResponse InitiatePush(
-                    string phoneNumber,
-                    string verifyCode = null)
+        public async Task<VerifyResponse> InitiatePushAsync(string phoneNumber, string verifyCode = null)
         {
-            string rawResponse = this.PushRaw(
+            string rawResponse = await this.PushRawAsync(
                         phoneNumber,
                         verifyCode);
 
@@ -337,11 +322,9 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object containing information about the status
         /// of the transactation and validity of the code.
         /// </returns>
-        public VerifyResponse ValidateCode(
-                    string referenceId,
-                    string verifyCode)
+        public async Task<VerifyResponse> ValidateCodeAsync(string referenceId, string verifyCode)
         {
-            string rawResponse = this.StatusRaw(
+            string rawResponse = await this.StatusRawAsync(
                         referenceId,
                         verifyCode);
             try
@@ -371,11 +354,11 @@ namespace TeleSign.Services.Verify
         /// A VerifyResponse object containing information about the status
         /// of the transactation
         /// </returns>
-        public VerifyResponse CheckStatus(string referenceId)
+        public async Task<VerifyResponse> CheckStatusAsync(string referenceId)
         {
             CheckArgument.NotNullOrEmpty(referenceId, "referenceId");
 
-            string rawResponse = this.StatusRaw(referenceId);
+            string rawResponse = await this.StatusRawAsync(referenceId);
 
             try
             {

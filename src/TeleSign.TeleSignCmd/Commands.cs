@@ -14,6 +14,7 @@ namespace TeleSign.TeleSignCmd
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using TeleSign.Services;
     using TeleSign.Services.PhoneId;
     using TeleSign.Services.Verify;
@@ -41,84 +42,84 @@ namespace TeleSign.TeleSignCmd
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void RawPhoneIdStandard(string[] args)
+        public static async Task RawPhoneIdStandard(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             RawPhoneIdService service = new RawPhoneIdService(GetConfiguration());
-            string jsonResponse = service.StandardLookupRaw(phoneNumber);
+            string jsonResponse = await service.StandardLookupRawAsync(phoneNumber);
 
             Console.WriteLine(jsonResponse);
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void RawPhoneIdContact(string[] args)
+        public static async Task RawPhoneIdContact(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             RawPhoneIdService service = new RawPhoneIdService(GetConfiguration());
-            string jsonResponse = service.ContactLookupRaw(phoneNumber);
+            string jsonResponse = await service.ContactLookupRawAsync(phoneNumber);
 
             Console.WriteLine(jsonResponse);
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void RawPhoneIdScore(string[] args)
+        public static async Task RawPhoneIdScore(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             RawPhoneIdService service = new RawPhoneIdService(GetConfiguration());
-            string jsonResponse = service.ScoreLookupRaw(phoneNumber);
+            string jsonResponse = await service.ScoreLookupRawAsync(phoneNumber);
 
             Console.WriteLine(jsonResponse);
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void RawPhoneIdLive(string[] args)
+        public static async Task RawPhoneIdLive(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             RawPhoneIdService service = new RawPhoneIdService(GetConfiguration());
-            string jsonResponse = service.LiveLookupRaw(phoneNumber);
+            string jsonResponse = await service.LiveLookupRawAsync(phoneNumber);
 
             Console.WriteLine(jsonResponse);
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void PhoneIdStandard(string[] args)
+        public static async Task PhoneIdStandard(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             PhoneIdService service = new PhoneIdService(GetConfiguration());
-            PhoneIdStandardResponse response = service.StandardLookup(phoneNumber);
+            PhoneIdStandardResponse response = await service.StandardLookupAsync(phoneNumber);
         }
         
         [CliCommand(HelpString = "Help me")]
-        public static void PhoneIdScore(string[] args)
+        public static async Task PhoneIdScore(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             PhoneIdService service = new PhoneIdService(GetConfiguration());
-            PhoneIdScoreResponse response = service.ScoreLookup(phoneNumber);
+            PhoneIdScoreResponse response = await service.ScoreLookupAsync(phoneNumber);
 
             Console.WriteLine("Phone Number: {0}", phoneNumber);
             Console.WriteLine("Risk        : {0} [{1}] - Recommend {2}", response.Risk.Level, response.Risk.Score, response.Risk.Recommendation);
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void PhoneIdLive(string[] args)
+        public static async Task PhoneIdLive(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             PhoneIdService service = new PhoneIdService(GetConfiguration());
-            PhoneIdLiveResponse response = service.LiveLookup(phoneNumber);
+            PhoneIdLiveResponse response = await service.LiveLookupAsync(phoneNumber);
 
             Console.WriteLine("Phone Number      : {0}", phoneNumber);
             Console.WriteLine("Subscriber Status : {0}", response.Live.SubscriberStatus);
@@ -136,13 +137,13 @@ namespace TeleSign.TeleSignCmd
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void PhoneIdContact(string[] args)
+        public static async Task PhoneIdContact(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             PhoneIdService service = new PhoneIdService(GetConfiguration());
-            PhoneIdContactResponse response = service.ContactLookup(phoneNumber);
+            PhoneIdContactResponse response = await service.ContactLookupAsync(phoneNumber);
 
             Console.WriteLine("Phone Number: {0}", phoneNumber);
             Console.WriteLine("Name        : {0}", response.Contact.FullName);
@@ -150,13 +151,13 @@ namespace TeleSign.TeleSignCmd
         }
         
         [CliCommand(HelpString = "Help me")]
-        public static void MapRegistrationLocation(string[] args)
+        public static async Task MapRegistrationLocation(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             PhoneIdService service = new PhoneIdService(GetConfiguration());
-            PhoneIdStandardResponse response = service.StandardLookup(phoneNumber);
+            PhoneIdStandardResponse response = await service.StandardLookupAsync(phoneNumber);
 
             string url = string.Format(
                         "http://maps.google.com/maps?q={0},{1}", 
@@ -167,13 +168,13 @@ namespace TeleSign.TeleSignCmd
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void MapContactLocation(string[] args)
+        public static async Task MapContactLocation(string[] args)
         {
             CheckArgument.ArrayLengthIs(args, 1, "args");
             string phoneNumber = args[0];
 
             PhoneIdService service = new PhoneIdService(GetConfiguration());
-            PhoneIdContactResponse response = service.ContactLookup(phoneNumber);
+            PhoneIdContactResponse response = await service.ContactLookupAsync(phoneNumber);
 
             string address = response.Contact.GetFullAddressOnSingleLine();
             Console.WriteLine("Google Mapping: {0}", address);
@@ -186,31 +187,31 @@ namespace TeleSign.TeleSignCmd
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void VerifySms(string[] args)
+        public static async Task VerifySms(string[] args)
         {
-            PerformVerify(args, VerificationMethod.Sms);
+            await PerformVerify(args, VerificationMethod.Sms);
         }
         
         [CliCommand(HelpString = "Help me")]
-        public static void VerifyTwoWaySms(string[] args)
+        public static async Task VerifyTwoWaySms(string[] args)
         {
-            PerformVerify(args, VerificationMethod.TwoWaySms);
+            await PerformVerify(args, VerificationMethod.TwoWaySms);
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void VerifyCall(string[] args)
+        public static async Task VerifyCall(string[] args)
         {
-            PerformVerify(args, VerificationMethod.Call);
+            await PerformVerify(args, VerificationMethod.Call);
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void VerifyPush(string[] args)
+        public static async Task VerifyPush(string[] args)
         {
-            PerformVerify(args, VerificationMethod.Push);
+            await PerformVerify(args, VerificationMethod.Push);
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void SendSms(string[] args)
+        public static async Task SendSms(string[] args)
         {
             CheckArgument.ArrayLengthAtLeast(args, 1, "args");
 
@@ -232,7 +233,7 @@ namespace TeleSign.TeleSignCmd
             {
                 VerifyService verify = new VerifyService(GetConfiguration());
                 VerifyResponse verifyResponse = null;
-                verifyResponse = verify.SendSms(phoneNumber, code, string.Empty, language);
+                verifyResponse = await verify.SendSmsAsync(phoneNumber, code, string.Empty, language);
                 Console.WriteLine("Sent sms");
             }
             catch (Exception x)
@@ -242,7 +243,7 @@ namespace TeleSign.TeleSignCmd
         }
 
         [CliCommand(HelpString = "Help me")]
-        public static void SendTwoWaySms(string[] args)
+        public static async Task SendTwoWaySms(string[] args)
         {
             CheckArgument.ArrayLengthAtLeast(args, 1, "args");
 
@@ -258,7 +259,7 @@ namespace TeleSign.TeleSignCmd
             {
                 VerifyService verify = new VerifyService(GetConfiguration());
                 VerifyResponse verifyResponse = null;
-                verifyResponse = verify.SendTwoWaySms(phoneNumber, message);
+                verifyResponse = await verify.SendTwoWaySmsAsync(phoneNumber, message);
                 Console.WriteLine("Sent two way sms");
             }
             catch (Exception x)
@@ -267,7 +268,7 @@ namespace TeleSign.TeleSignCmd
             }
         }
 
-        private static void PerformVerify(string[] args, VerificationMethod method)
+        private static async Task PerformVerify(string[] args, VerificationMethod method)
         {
             CheckArgument.ArrayLengthAtLeast(args, 1, "args");
 
@@ -290,19 +291,19 @@ namespace TeleSign.TeleSignCmd
 
             if (method == VerificationMethod.Sms)
             {
-                verifyResponse = verify.SendSms(phoneNumber, code, string.Empty, language);
+                verifyResponse = await verify.SendSmsAsync(phoneNumber, code, string.Empty, language);
             }
             else if (method == VerificationMethod.Call)
             {
-                verifyResponse = verify.InitiateCall(phoneNumber, code, language);
+                verifyResponse = await verify.InitiateCallAsync(phoneNumber, code, language);
             }
             else if (method == VerificationMethod.Push)
             {
-                verifyResponse = verify.InitiatePush(phoneNumber, code);
+                verifyResponse = await verify.InitiatePushAsync(phoneNumber, code);
             }
             else if (method == VerificationMethod.TwoWaySms)
             {
-                verifyResponse = verify.SendTwoWaySms(phoneNumber);
+                verifyResponse = await verify.SendTwoWaySmsAsync(phoneNumber);
             }
             else
             {
@@ -322,14 +323,14 @@ namespace TeleSign.TeleSignCmd
                 Console.Write("Enter the code sent to phone [Just <enter> checks status. 'quit' to exit]: ");
                 string enteredCode = Console.ReadLine();
 
-                if (enteredCode.Equals("quit", StringComparison.InvariantCultureIgnoreCase))
+                if (enteredCode.Equals("quit", StringComparison.OrdinalIgnoreCase))
                 {
                     break;
                 }
 
                 Console.WriteLine(string.IsNullOrEmpty(enteredCode) ? "Checking status..." : "Validating code...");
 
-                VerifyResponse statusResponse = verify.ValidateCode(
+                VerifyResponse statusResponse = await verify.ValidateCodeAsync(
                             verifyResponse.ReferenceId,
                             enteredCode);
 

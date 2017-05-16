@@ -9,6 +9,7 @@
 namespace TeleSign.Services
 {
     using System.Net;
+    using System.Net.Http;
 
     /// <summary>
     /// Trivial abstraction to the interaction with the service/internet.
@@ -20,8 +21,8 @@ namespace TeleSign.Services
         /// Given a web request - reads the response and returns it all
         /// as a string.
         /// </summary>
-        /// <param name="request">A .NET WebRequest object.</param>
+        /// <param name="response"></param>
         /// <returns>The response as a string.</returns>
-        string ReadResponseAsString(WebRequest request);
+        string ReadResponseAsString(HttpResponseMessage response);
     }
 }

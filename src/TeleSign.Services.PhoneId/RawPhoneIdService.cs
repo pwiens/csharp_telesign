@@ -13,6 +13,8 @@ namespace TeleSign.Services.PhoneId
     using System.Globalization;
     using System.IO;
     using System.Net;
+    using System.Net.Http;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// <para>
@@ -87,7 +89,7 @@ namespace TeleSign.Services.PhoneId
         /// <param name="webRequester">The web requester to use.</param>
         public RawPhoneIdService(
                     TeleSignServiceConfiguration configuration, 
-                    IWebRequester webRequester)
+                    HttpMessageHandler webRequester)
             : base(configuration, webRequester)
         {
         }
@@ -100,9 +102,7 @@ namespace TeleSign.Services.PhoneId
         /// <param name="phoneNumber">The phone number to lookup.</param>
         /// <param name="useCaseId">The use case for the lookup. (Restricted set of values).</param>
         /// <returns>The raw JSON string response.</returns>
-        public string StandardLookupRaw(
-                    string phoneNumber,
-                    string useCaseId = RawPhoneIdService.DefaultUseCaseId)
+        public async Task<string> StandardLookupRawAsync(string phoneNumber, string useCaseId = RawPhoneIdService.DefaultUseCaseId)
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
 
@@ -120,12 +120,16 @@ namespace TeleSign.Services.PhoneId
 
             this.CustomizeParameters(additionalFields);
 
-            WebRequest request = this.ConstructWebRequest(
+            HttpRequestMessage request = this.ConstructWebRequest(
                         resourceName,
-                        "GET",
+                        HttpMethod.Get,
                         additionalFields);
 
-            return this.WebRequester.ReadResponseAsString(request);
+            var response = await this.HttpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -136,9 +140,7 @@ namespace TeleSign.Services.PhoneId
         /// <param name="phoneNumber">The phone number to lookup.</param>
         /// <param name="useCaseId">The use case for the lookup. (Restricted set of values).</param>
         /// <returns>The raw JSON string response.</returns>
-        public string ContactLookupRaw(
-                    string phoneNumber, 
-                    string useCaseId = RawPhoneIdService.DefaultUseCaseId)
+        public async Task<string> ContactLookupRawAsync(string phoneNumber, string useCaseId = RawPhoneIdService.DefaultUseCaseId)
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
 
@@ -155,12 +157,16 @@ namespace TeleSign.Services.PhoneId
 
             this.CustomizeParameters(additionalFields);
 
-            WebRequest request = this.ConstructWebRequest(
+            HttpRequestMessage request = this.ConstructWebRequest(
                         resourceName,
-                        "GET",
+                        HttpMethod.Get,
                         additionalFields);
 
-            return this.WebRequester.ReadResponseAsString(request);
+            var response = await this.HttpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -171,9 +177,7 @@ namespace TeleSign.Services.PhoneId
         /// <param name="phoneNumber">The phone number to lookup.</param>
         /// <param name="useCaseId">The use case for the lookup. (Restricted set of values).</param>
         /// <returns>The raw JSON string response.</returns>
-        public string ScoreLookupRaw(
-                    string phoneNumber,
-                    string useCaseId = RawPhoneIdService.DefaultUseCaseId)
+        public async Task<string> ScoreLookupRawAsync(string phoneNumber, string useCaseId = RawPhoneIdService.DefaultUseCaseId)
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
 
@@ -190,12 +194,16 @@ namespace TeleSign.Services.PhoneId
 
             this.CustomizeParameters(additionalFields);
 
-            WebRequest request = this.ConstructWebRequest(
+            HttpRequestMessage request = this.ConstructWebRequest(
                         resourceName,
-                        "GET",
+                        HttpMethod.Get,
                         additionalFields);
 
-            return this.WebRequester.ReadResponseAsString(request);
+            var response = await this.HttpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -206,9 +214,7 @@ namespace TeleSign.Services.PhoneId
         /// <param name="phoneNumber">The phone number to lookup.</param>
         /// <param name="useCaseId">The use case for the lookup. (Restricted set of values).</param>
         /// <returns>The raw JSON string response.</returns>
-        public string LiveLookupRaw(
-                    string phoneNumber,
-                    string useCaseId = RawPhoneIdService.DefaultUseCaseId)
+        public async Task<string> LiveLookupRawAsync(string phoneNumber, string useCaseId = RawPhoneIdService.DefaultUseCaseId)
         {
             phoneNumber = this.CleanupPhoneNumber(phoneNumber);
 
@@ -225,12 +231,16 @@ namespace TeleSign.Services.PhoneId
 
             this.CustomizeParameters(additionalFields);
 
-            WebRequest request = this.ConstructWebRequest(
+            HttpRequestMessage request = this.ConstructWebRequest(
                         resourceName,
-                        "GET",
+                        HttpMethod.Get,
                         additionalFields);
 
-            return this.WebRequester.ReadResponseAsString(request);
+            var response = await this.HttpClient.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         /// <summary>

@@ -9,6 +9,8 @@
 namespace TeleSign.Services.PhoneId
 {
     using System;
+    using System.Net.Http;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The TeleSign PhoneID service. This provides 3 services. PhoneID Contact, 
@@ -41,7 +43,7 @@ namespace TeleSign.Services.PhoneId
         /// <param name="responseParser">The response parser to use.</param>
         public PhoneIdService(
                     TeleSignServiceConfiguration configuration, 
-                    IWebRequester webRequester,
+                    HttpMessageHandler webRequester,
                     IPhoneIdResponseParser responseParser)
             : base(configuration, webRequester)
         {
@@ -57,11 +59,11 @@ namespace TeleSign.Services.PhoneId
         /// A StandardPhoneIdResponse object containing both status of the transaction
         /// and the resulting data (if successful).
         /// </returns>
-        public PhoneIdStandardResponse StandardLookup(string phoneNumber)
+        public async Task<PhoneIdStandardResponse> StandardLookupAsync(string phoneNumber)
         {
             CheckArgument.NotNullOrEmpty(phoneNumber, "phoneNumber");
 
-            string rawResponse = this.StandardLookupRaw(phoneNumber);
+            string rawResponse = await this.StandardLookupRawAsync(phoneNumber);
 
             try
             {
@@ -84,11 +86,11 @@ namespace TeleSign.Services.PhoneId
         /// A ContactPhoneIdResponse object containing both status of the transaction
         /// and the resulting data (if successful).
         /// </returns>
-        public PhoneIdContactResponse ContactLookup(string phoneNumber)
+        public async Task<PhoneIdContactResponse> ContactLookupAsync(string phoneNumber)
         {
             CheckArgument.NotNullOrEmpty(phoneNumber, "phoneNumber");
 
-            string rawResponse = this.ContactLookupRaw(phoneNumber);
+            string rawResponse = await this.ContactLookupRawAsync(phoneNumber);
 
             try
             {
@@ -111,11 +113,11 @@ namespace TeleSign.Services.PhoneId
         /// A ScorePhoneIdResponse object containing both status of the transaction
         /// and the resulting data (if successful).
         /// </returns>
-        public PhoneIdScoreResponse ScoreLookup(string phoneNumber)
+        public async Task<PhoneIdScoreResponse> ScoreLookupAsync(string phoneNumber)
         {
             CheckArgument.NotNullOrEmpty(phoneNumber, "phoneNumber");
 
-            string rawResponse = this.ScoreLookupRaw(phoneNumber);
+            string rawResponse = await this.ScoreLookupRawAsync(phoneNumber);
 
             try
             {
@@ -138,11 +140,11 @@ namespace TeleSign.Services.PhoneId
         /// A PhoneIdLiveResponse object containing both status of the transaction
         /// and the resulting data (if successful).
         /// </returns>
-        public PhoneIdLiveResponse LiveLookup(string phoneNumber)
+        public async Task<PhoneIdLiveResponse> LiveLookupAsync(string phoneNumber)
         {
             CheckArgument.NotNullOrEmpty(phoneNumber, "phoneNumber");
 
-            string rawResponse = this.LiveLookupRaw(phoneNumber);
+            string rawResponse = await this.LiveLookupRawAsync(phoneNumber);
 
             try
             {

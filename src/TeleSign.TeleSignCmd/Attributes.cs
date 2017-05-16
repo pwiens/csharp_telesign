@@ -21,15 +21,15 @@ namespace TeleSign.TeleSignCmd
 
         static AttributeHelper()
         {
-            commandLookup = new Dictionary<string, CommandDelegate>(StringComparer.InvariantCultureIgnoreCase);
+            commandLookup = new Dictionary<string, CommandDelegate>(StringComparer.OrdinalIgnoreCase);
 
             MethodInfo[] methods = typeof(Commands).GetMethods(BindingFlags.Static | BindingFlags.Public)
-                                  .Where(m => m.GetCustomAttributes(typeof(CliCommandAttribute), false).Length > 0)
+                                  .Where(m => m.GetCustomAttributes(typeof(CliCommandAttribute), false).Any())
                                   .ToArray();
 
             foreach (MethodInfo method in methods)
             {
-                commandLookup.Add(method.Name, (CommandDelegate)Delegate.CreateDelegate(typeof(CommandDelegate), null, method));
+                commandLookup.Add(method.Name, (CommandDelegate)method.CreateDelegate(typeof(CommandDelegate)));
             }
         }
 
