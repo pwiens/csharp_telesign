@@ -13,8 +13,9 @@ namespace TeleSign.Services
     using System.IO;
     using System.Globalization;
     using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Text;
-    using System.Web;
 
     /// <summary>
     /// The base class for TeleSign REST services.
@@ -39,7 +40,9 @@ namespace TeleSign.Services
         /// <summary>
         /// Gets or sets the object used to perform web requests.
         /// </summary>
-        protected IWebRequester WebRequester { get; private set; }
+        protected HttpMessageHandler WebRequester { get; private set; }
+
+        protected HttpClient HttpClient { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the TeleSignService class with the supplied
@@ -49,16 +52,14 @@ namespace TeleSign.Services
         /// <param name="webRequester">The web requester to use to perform web requests. If null will use the default.</param>
         protected TeleSignService(
                     TeleSignServiceConfiguration configuration,
-                    IWebRequester webRequester,
+                    HttpMessageHandler webRequester,
                     string accountName = "default")
         {
-            this.configuration = (configuration == null)
-                        ? TeleSignServiceConfiguration.ReadConfigurationFile(accountName)
-                        : configuration;
+            this.configuration = configuration ?? TeleSignServiceConfiguration.ReadConfigurationFile(accountName);
 
-            this.WebRequester = (webRequester == null)
-                        ? new WebRequester()
-                        : webRequester;
+            this.WebRequester = webRequester ?? new HttpClientHandler();
+
+            this.HttpClient = new HttpClient(this.WebRequester);
 
             this.ValidateConfiguration();
 
@@ -108,8 +109,8 @@ namespace TeleSign.Services
                     builder.AppendFormat(
                                 CultureInfo.InvariantCulture,
                                 "{0}={1}&",
-                                HttpUtility.UrlEncode(entry.Key, Encoding.UTF8),
-                                HttpUtility.UrlEncode(entry.Value, Encoding.UTF8));
+                                Uri.EscapeDataString(entry.Key),
+                                Uri.EscapeDataString(entry.Value));
                 }
 
                 // Chop off the trailing &
@@ -201,14 +202,10 @@ namespace TeleSign.Services
         /// <param name="fields">The fields that are the arguments to the request.</param>
         /// <param name="authMethod">The method of authentication to use.</param>
         /// <returns>A WebRequest object.</returns>
-        protected WebRequest ConstructWebRequest(
-                    string resourceName,
-                    string method,
-                    Dictionary<string, string> fields = null,
-                    AuthenticationMethod authMethod = AuthenticationMethod.HmacSha1)
+        protected HttpRequestMessage ConstructWebRequest(string resourceName, HttpMethod method, Dictionary<string, string> fields = null, AuthenticationMethod authMethod = AuthenticationMethod.HmacSha1)
         {
             CheckArgument.NotNullOrEmpty(resourceName, "resourceName");
-            CheckArgument.NotNullOrEmpty(method, "method");
+            CheckArgument.NotNull(method, "method");
 
             DateTime timeStamp = DateTime.UtcNow;
             string nonce = Guid.NewGuid().ToString();
@@ -222,12 +219,12 @@ namespace TeleSign.Services
                         method, 
                         fields);
 
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(fullUri);
+            HttpRequestMessage request = new HttpRequestMessage(method, fullUri);
             request.Method = method;
 
             string contentType = string.Empty;
             string encodedBody = string.Empty;
-            if (method == "POST")
+            if (method == HttpMethod.Post)
             {
                 contentType = "application/x-www-form-urlencoded";
                 encodedBody = TeleSignService.ConstructQueryString(fields);
@@ -247,17 +244,10 @@ namespace TeleSign.Services
             request.Headers.Add("x-ts-date", timeStamp.ToString("r"));
             request.Headers.Add("x-ts-nonce", nonce);
 
-            if (method == "POST")
+            if (method == HttpMethod.Post)
             {
-                byte[] body = Encoding.UTF8.GetBytes(encodedBody);
-
-                request.Accept = "application/json";
-                request.ContentType = contentType;
-                request.ContentLength = body.Length;
-                using (Stream stream = request.GetRequestStream())
-                {
-                    stream.Write(body, 0, body.Length);
-                }
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Content = new StringContent(encodedBody, Encoding.UTF8, contentType);
             }
 
             return request;
@@ -273,7 +263,7 @@ namespace TeleSign.Services
         /////// <returns>A WebRequest object.</returns>
         ////protected WebRequest ConstructWebMobileRequest(
         ////            string resourceName,
-        ////            string method,
+        ////            HttpMethod method,
         ////            Dictionary<string, string> fields = null,
         ////            AuthenticationMethod authMethod = AuthenticationMethod.HmacSha1)
         ////{
@@ -345,12 +335,12 @@ namespace TeleSign.Services
         /// <returns>The fully qualified URI to the resource.</returns>
         private Uri ConstructResourceUri(
                     string resourceName, 
-                    string method, 
+                    HttpMethod method, 
                     Dictionary<string, string> fields)
         {
             string relativePath = resourceName;
 
-            if (method == "GET" && (fields != null && fields.Count != 0))
+            if (method == HttpMethod.Get && (fields != null && fields.Count != 0))
             {
                 relativePath = string.Format(
                             CultureInfo.InvariantCulture,
@@ -376,12 +366,12 @@ namespace TeleSign.Services
         /////// <returns>The fully qualified URI to the resource.</returns>
         ////private Uri ConstructResourceMobileUri(
         ////            string resourceName, 
-        ////            string method, 
+        ////            HttpMethod method, 
         ////            Dictionary<string, string> fields)
         ////{
         ////    string relativePath = resourceName;
 
-        ////    if (method == "GET" && (fields != null && fields.Count != 0))
+        ////    if (method == HttpMethod.Get && (fields != null && fields.Count != 0))
         ////    {
         ////        relativePath = string.Format(
         ////                    CultureInfo.InvariantCulture,

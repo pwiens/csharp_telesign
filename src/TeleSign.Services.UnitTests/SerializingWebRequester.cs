@@ -9,7 +9,10 @@
 namespace TeleSign.Services.UnitTests
 {
     using System.Net;
+    using System.Net.Http;
     using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// <para>
@@ -26,34 +29,26 @@ namespace TeleSign.Services.UnitTests
     /// for testing the raw versions of the service.
     /// </para>
     /// </summary>
-    public class SerializingWebRequester : IWebRequester
+    public class SerializingWebRequester : DelegatingHandler
     {
-        public string ReadResponseAsString(WebRequest request)
+        private HttpMethod method;
+        private string localUriPath;
+        private string contentType;
+        private string queryString;
+
+        public SerializingWebRequester(HttpMethod method, string localUriPath, string contentType, string queryString) : base(new HttpClientHandler())
         {
-            string queryString = request.RequestUri.Query;
-
-            // Chop the ? off the front if it is there
-            if (queryString.StartsWith("?"))
-            {
-                queryString = queryString.Substring(1);
-            }
-
-            return this.ConstructSerializedString(
-                        request.Method,
-                        request.RequestUri.AbsolutePath,
-                        request.ContentType,
-                        queryString);
+            this.method = method;
+            this.localUriPath = localUriPath;
+            this.contentType = contentType;
+            this.queryString = queryString;
         }
 
-        public string ConstructSerializedString(
-                    string method,
-                    string localUriPath,
-                    string contentType,
-                    string queryString)
+        public string ConstructSerializedString()
         {
             StringBuilder builder = new StringBuilder();
 
-            builder.AppendFormat("Method: {0}\r\n", DefaultIfNull(method));
+            builder.AppendFormat("Method: {0}\r\n", DefaultIfNull(method?.Method));
             builder.AppendFormat("LocalUriPath: {0}\r\n", DefaultIfNull(localUriPath));
             builder.AppendFormat("ContentType: {0}\r\n", DefaultIfNull(contentType));
             builder.AppendFormat("QueryString: {0}\r\n", DefaultIfNull(queryString));
@@ -69,6 +64,15 @@ namespace TeleSign.Services.UnitTests
             }
 
             return value;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(this.ConstructSerializedString(), Encoding.UTF8, this.contentType)
+                });
         }
     }
 }

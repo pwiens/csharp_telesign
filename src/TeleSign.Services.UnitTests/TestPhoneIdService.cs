@@ -9,6 +9,7 @@
 namespace TeleSign.Services.UnitTests
 {
     using System;
+    using System.Net.Http;
     using NUnit.Framework;
     using TeleSign.Services.PhoneId;
 
@@ -16,7 +17,7 @@ namespace TeleSign.Services.UnitTests
     public class TestPhoneIdService : BaseServiceTest
     {
         private PhoneIdService CreateService(
-                    IWebRequester webRequester = null, 
+                    HttpMessageHandler webRequester = null, 
                     IPhoneIdResponseParser responseParser = null)
         {
             if (webRequester == null)
@@ -38,82 +39,55 @@ namespace TeleSign.Services.UnitTests
         [Test]
         public void TestStandardRejectsNullNumber()
         {
-            Assert.Throws<ArgumentNullException>(delegate
-            {
-                this.CreateService().StandardLookup(null);
-            });
+            Assert.ThrowsAsync<ArgumentNullException>(() => this.CreateService().StandardLookupAsync(null));
         }
 
         [Test]
         public void TestContactRejectsNullNumber()
         {
-            Assert.Throws<ArgumentNullException>(delegate
-            {
-                this.CreateService().ContactLookup(null);
-            });
+            Assert.ThrowsAsync<ArgumentNullException>(() => this.CreateService().ContactLookupAsync(null));
         }
 
         [Test]
         public void TestScoreRejectsNullNumber()
         {
-            Assert.Throws<ArgumentNullException>(delegate
-            {
-                this.CreateService().ScoreLookup(null);
-            });
+            Assert.ThrowsAsync<ArgumentNullException>(() => this.CreateService().ScoreLookupAsync(null));
         }
 
         [Test]
         public void TestStandardRejectsEmptyNumber()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().StandardLookupRaw(string.Empty);
-            });
+            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().StandardLookupRawAsync(string.Empty));
         }
 
         [Test]
         public void TestContactRejectsEmptyNumber()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().ContactLookup(string.Empty);
-            });
+            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().ContactLookupAsync(string.Empty));
         }
 
         [Test]
         public void TestScoreRejectsEmptyNumber()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().ScoreLookup(string.Empty);
-            });
+            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().ScoreLookupAsync(string.Empty));
         }
 
         [Test]
         public void TestStandardRejectsNumberWithNoDigits()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().StandardLookup("X+#$?");
-            });
+            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().StandardLookupAsync("X+#$?"));
         }
 
         [Test]
         public void TestContactRejectsNumberWithNoDigits()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().ContactLookup("X+#$?");
-            });
+            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().ContactLookupAsync("X+#$?"));
         }
 
         [Test]
         public void TestScoreRejectsNumberWithNoDigits()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().ScoreLookup("X+#$?");
-            });
+            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().ScoreLookupAsync("X+#$?"));
         }
 
         [Test]
@@ -127,10 +101,7 @@ namespace TeleSign.Services.UnitTests
 
             PhoneIdService service = this.CreateService(null, parser);
 
-            Assert.Throws<ResponseParseException>(delegate
-            {
-                service.StandardLookup("15555555555");
-            });
+            Assert.ThrowsAsync<ResponseParseException>(() => service.StandardLookupAsync("15555555555"));
         }
 
         [Test]
@@ -144,10 +115,7 @@ namespace TeleSign.Services.UnitTests
 
             PhoneIdService service = this.CreateService(null, parser);
 
-            Assert.Throws<ResponseParseException>(delegate
-            {
-                service.ContactLookup("15555555555");
-            });
+            Assert.ThrowsAsync<ResponseParseException>(() => service.ContactLookupAsync("15555555555"));
         }
 
         [Test]
@@ -161,10 +129,7 @@ namespace TeleSign.Services.UnitTests
 
             PhoneIdService service = this.CreateService(null, parser);
 
-            Assert.Throws<ResponseParseException>(delegate
-            {
-                service.ScoreLookup("15555555555");
-            });
+            Assert.ThrowsAsync<ResponseParseException>(() => service.ScoreLookupAsync("15555555555"));
         }
     }
 }

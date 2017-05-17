@@ -2,6 +2,8 @@
 bin/
 obj/
 docs/SandcastleHtml/
+.vs/
+.vscode/
 
 # Project property files.
 .suo

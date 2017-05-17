@@ -10,6 +10,7 @@ namespace TeleSign.Services
 {
     using System;
     using System.Globalization;
+    using System.Net.Http;
     using System.Security.Cryptography;
     using System.Text;
 
@@ -54,7 +55,7 @@ namespace TeleSign.Services
         /// <returns>The string that will be signed for authentication.</returns>
         public string ConstructAuthorizationString(
                     string resourceName,
-                    string method,
+                    HttpMethod method,
                     DateTime timestamp,
                     string nonce,
                     string contentType,
@@ -113,7 +114,7 @@ namespace TeleSign.Services
         /// <returns>The string that will be signed for authentication.</returns>
         public string ConstructStringToSign(
                     string resourceName,
-                    string method,
+                    HttpMethod method,
                     DateTime timestamp,
                     string nonce,
                     string contentType,
@@ -121,7 +122,7 @@ namespace TeleSign.Services
                     AuthenticationMethod authMethod)
         {
             CheckArgument.NotNullOrEmpty(resourceName, "resourceName");
-            CheckArgument.NotNullOrEmpty(method, "method");
+            CheckArgument.NotNull(method, "method");
             CheckArgument.NotNull(nonce, "nonce");
             CheckArgument.NotNull(contentType, "contentType");
             CheckArgument.NotNull(encodedBody, "encodedBody");
@@ -152,12 +153,12 @@ namespace TeleSign.Services
         /// <returns>The string that will be signed for authentication.</returns>
         public string ConstructStringToSign(
                     string resourceName,
-                    string method,
+                    HttpMethod method,
                     string contentType,
                     string encodedBody)
         {
             CheckArgument.NotNullOrEmpty(resourceName, "resourceName");
-            CheckArgument.NotNullOrEmpty(method, "method");
+            CheckArgument.NotNull(method, "method");
             CheckArgument.NotNull(contentType, "contentType");
             CheckArgument.NotNull(encodedBody, "encodedBody");
 

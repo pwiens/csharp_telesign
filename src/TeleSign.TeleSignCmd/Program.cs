@@ -31,7 +31,15 @@ namespace TeleSign.TeleSignCmd
             Array.Copy(args, 1, commandArgs, 0, args.Length - 1);
 
             CommandDelegate func = AttributeHelper.LookupCommand(commandName);
-            func(commandArgs);
+            try
+            {
+                func(commandArgs).Wait();
+            }
+            catch (AggregateException e)
+            {
+                Console.WriteLine(e.Flatten().InnerException.Message);
+            }
+            
             return 0;
         }
 

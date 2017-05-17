@@ -9,6 +9,10 @@
 namespace TeleSign.Services.UnitTests
 {
     using System.Net;
+    using System.Net.Http;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
     using TeleSign.Services;
 
     /// <summary>
@@ -16,14 +20,14 @@ namespace TeleSign.Services.UnitTests
     /// It implements ReadResponseAsString by simply returning
     /// a response string that has been provided by calling SetResponse.
     /// </summary>
-    public class FakeWebRequester : IWebRequester
+    public class FakeWebRequester : DelegatingHandler
     {
         /// <summary>
         /// The response that will be returned.
         /// </summary>
         private string response;
 
-        public FakeWebRequester()
+        public FakeWebRequester() : base(new HttpClientHandler())
         {
             this.response = string.Empty;
         }
@@ -38,9 +42,13 @@ namespace TeleSign.Services.UnitTests
             this.response = response;
         }
 
-        public string ReadResponseAsString(WebRequest request)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            return this.response;
+            return Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(this.response, Encoding.UTF8)
+                });
         }
     }
 }

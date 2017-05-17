@@ -10,6 +10,8 @@ namespace TeleSign.Services.UnitTests
 {
     using System;
     using System.Collections.Generic;
+    using System.Net.Http;
+    using System.Threading.Tasks;
     using NUnit.Framework;
     using TeleSign.Services;
     using TeleSign.Services.Verify;
@@ -17,7 +19,7 @@ namespace TeleSign.Services.UnitTests
     [TestFixture] 
     public class TestRawVerifyService : BaseServiceTest
     {
-        private RawVerifyService CreateService(IWebRequester webRequester = null)
+        private RawVerifyService CreateService(HttpMessageHandler webRequester = null)
         {
             if (webRequester == null)
             {
@@ -36,25 +38,25 @@ namespace TeleSign.Services.UnitTests
         }
 
         [Test]
-        public void TestCallAcceptsCleanableNumber()
+        public async Task TestCallAcceptsCleanableNumber()
         {
-            this.CreateService().CallRaw("+1 (555)444-4444");
+            await this.CreateService().CallRawAsync("+1 (555)444-4444");
         }
 
-        [Test]
-        public void TestStandardWebRequest()
-        {
-            ////SerializingWebRequester requester = new SerializingWebRequester();
+        //[Test]
+        //public async Task TestStandardWebRequest()
+        //{
+        //    ////SerializingWebRequester requester = new SerializingWebRequester();
 
-            ////string expectedResponse = requester.ConstructSerializedString(
-            ////            "GET",
-            ////            "/v1/phoneid/standard/61811111234",
-            ////            null,
-            ////            this.CreateDefaultQueryString());
+        //    ////string expectedResponse = requester.ConstructSerializedString(
+        //    ////            HttpMethod.Get,
+        //    ////            "/v1/phoneid/standard/61811111234",
+        //    ////            null,
+        //    ////            this.CreateDefaultQueryString());
 
-            ////string actualResponse = this.CreateService(requester).StandardLookupRaw("61811111234");
+        //    ////string actualResponse = this.CreateService(requester).StandardLookupRaw("61811111234");
 
-            ////Assert.AreEqual(expectedResponse, actualResponse);
-        }
+        //    ////Assert.AreEqual(expectedResponse, actualResponse);
+        //}
     }
 }

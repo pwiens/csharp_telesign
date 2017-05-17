@@ -9,6 +9,8 @@
 namespace TeleSign.Services.UnitTests
 {
     using System;
+    using System.Net.Http;
+    using System.Threading.Tasks;
     using NUnit.Framework;
     using TeleSign.Services.Verify;
 
@@ -16,7 +18,7 @@ namespace TeleSign.Services.UnitTests
     public class TestVerifyService : BaseServiceTest
     {
         private VerifyService CreateService(
-                    IWebRequester webRequester = null, 
+                    HttpMessageHandler webRequester = null, 
                     IVerifyResponseParser responseParser = null)
         {
             if (webRequester == null)
@@ -38,34 +40,25 @@ namespace TeleSign.Services.UnitTests
         [Test]
         public void TestSmsRejectsNullNumber()
         {
-            Assert.Throws<ArgumentNullException>(delegate
-            {
-                this.CreateService().SendSms(null);
-            });
+            Assert.ThrowsAsync<ArgumentNullException>(() => this.CreateService().SendSmsAsync(null));
         }
 
         [Test]
         public void TestSmsRejectsEmptyNumber()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().SendSms(string.Empty);
-            });
+            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().SendSmsAsync(string.Empty));
         }
 
         [Test]
         public void TestSmsRejectsNumberWithNoDigits()
         {
-            Assert.Throws<ArgumentException>(delegate
-            {
-                this.CreateService().SendSms("X+#$?");
-            });
+            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().SendSmsAsync("X+#$?"));
         }
 
         [Test]
-        public void TestSmsDoesNotRejectCleanableNumbers()
+        public async Task TestSmsDoesNotRejectCleanableNumbers()
         {
-            this.CreateService().SendSms("+61 (08) 1111-1234");
+            await this.CreateService().SendSmsAsync("+61 (08) 1111-1234");
         }
     }
 }

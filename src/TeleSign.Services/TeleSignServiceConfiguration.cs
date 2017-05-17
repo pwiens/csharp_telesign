@@ -174,7 +174,7 @@ namespace TeleSign.Services
         /// <returns>The path to the default configuration file.</returns>
         private static string GetDefaultConfigurationFilePath()
         {
-            string assemblyFilePath = Assembly.GetExecutingAssembly().Location;
+            string assemblyFilePath = typeof(TeleSignServiceConfiguration).GetTypeInfo().Assembly.Location;
             string assemblyDirectory = Path.GetDirectoryName(assemblyFilePath);
 
             return Path.Combine(
