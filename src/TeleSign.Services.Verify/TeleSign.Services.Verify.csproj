@@ -1,11 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.5</TargetFramework>
+    <TargetFrameworks>netstandard1.5;net45</TargetFrameworks>
+    <Copyright>Copyright (c) TeleSign Corporation 2012</Copyright>
+    <Authors>Zentaro Kavanagh</Authors>
+    <Company>TeleSign Corporation</Company>
+    <Product>TeleSign REST Client</Product>
+    <Description>C# client for TeleSign REST API</Description>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TeleSign.Services\TeleSign.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
 </Project>
