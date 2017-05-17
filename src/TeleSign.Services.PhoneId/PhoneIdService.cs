@@ -16,7 +16,7 @@ namespace TeleSign.Services.PhoneId
     /// The TeleSign PhoneID service. This provides 3 services. PhoneID Contact, 
     /// PhoneID Standard and PhoneID Score. TODO: Link to other documentation or more detail here?
     /// </summary>
-    public class PhoneIdService : RawPhoneIdService
+    public class PhoneIdService : RawPhoneIdService, IPhoneIdService
     {
         /// <summary>
         /// The parser that transforms the raw JSON responses

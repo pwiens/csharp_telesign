@@ -20,7 +20,7 @@ namespace TeleSign.Services
     /// <summary>
     /// The base class for TeleSign REST services.
     /// </summary>
-    public class TeleSignService
+    public class TeleSignService : ITeleSignService
     {
         /// <summary>
         /// The default value for a use case id if not specified.

@@ -8,7 +8,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{a16c6d0e-539a-4702-a862-86787f3875fd}</ProjectGuid>
-    <SHFBSchemaVersion>1.9.3.0</SHFBSchemaVersion>
+    <SHFBSchemaVersion>2015.6.5.0</SHFBSchemaVersion>
     <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual
          Studio adds them anyway -->
     <AssemblyName>Documentation</AssemblyName>
@@ -20,7 +20,7 @@
     <Language>en-US</Language>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <HelpTitle>TeleSign .NET SDK Help</HelpTitle>
-    <PresentationStyle>Prototype</PresentationStyle>
+    <PresentationStyle>VS2013</PresentationStyle>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\src\TeleSign.Services\TeleSign.Services.csproj" />
       <DocumentationSource sourceFile="..\src\TeleSign.Services.PhoneId\TeleSign.Services.PhoneId.csproj" />
@@ -80,7 +80,7 @@
     <FooterText>Updated: {%40BuildDate:MM/dd/yy a\t hh:mm tt}</FooterText>
     <ProjectSummary>This section contains technical reference information on the &amp;lt%3bstrong&amp;gt%3bTeleSign .NET Class Library&amp;lt%3b/strong&amp;gt%3b.</ProjectSummary>
     <BuildAssemblerVerbosity>AllMessages</BuildAssemblerVerbosity>
-    <FrameworkVersion>.NET 4.0.30319</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.0</FrameworkVersion>
     <KeepLogFile>True</KeepLogFile>
     <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
     <CppCommentsFixup>False</CppCommentsFixup>

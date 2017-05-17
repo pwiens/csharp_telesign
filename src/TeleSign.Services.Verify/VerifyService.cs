@@ -11,11 +11,11 @@ namespace TeleSign.Services.Verify
     using System;
     using System.Net.Http;
     using System.Threading.Tasks;
-
+    
     /// <summary>
     /// The TeleSign Verify service.
     /// </summary>
-    public class VerifyService : RawVerifyService
+    public class VerifyService : RawVerifyService, IVerifyService
     {
         /// <summary>
         /// The parser used to transform the raw JSON string responses to rich .NET objects.
