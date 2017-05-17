@@ -11,6 +11,8 @@ namespace TeleSign.Services.UnitTests
     using System.Net;
     using System.Net.Http;
     using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// <para>
@@ -29,32 +31,20 @@ namespace TeleSign.Services.UnitTests
     /// </summary>
     public class SerializingWebRequester : DelegatingHandler
     {
-        public SerializingWebRequester() : base(new HttpClientHandler())
-        {
-            
-        }
-        public string ReadResponseAsString(HttpRequestMessage request)
-        {
-            string queryString = request.RequestUri.Query;
+        private HttpMethod method;
+        private string localUriPath;
+        private string contentType;
+        private string queryString;
 
-            // Chop the ? off the front if it is there
-            if (queryString.StartsWith("?"))
-            {
-                queryString = queryString.Substring(1);
-            }
-
-            return this.ConstructSerializedString(
-                        request.Method,
-                        request.RequestUri.AbsolutePath,
-                        request.Content.Headers.ContentType.MediaType,
-                        queryString);
+        public SerializingWebRequester(HttpMethod method, string localUriPath, string contentType, string queryString) : base(new HttpClientHandler())
+        {
+            this.method = method;
+            this.localUriPath = localUriPath;
+            this.contentType = contentType;
+            this.queryString = queryString;
         }
 
-        public string ConstructSerializedString(
-                    HttpMethod method,
-                    string localUriPath,
-                    string contentType,
-                    string queryString)
+        public string ConstructSerializedString()
         {
             StringBuilder builder = new StringBuilder();
 
@@ -74,6 +64,15 @@ namespace TeleSign.Services.UnitTests
             }
 
             return value;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(this.ConstructSerializedString(), Encoding.UTF8, this.contentType)
+                });
         }
     }
 }

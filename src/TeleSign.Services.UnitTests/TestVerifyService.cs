@@ -40,7 +40,7 @@ namespace TeleSign.Services.UnitTests
         [Test]
         public void TestSmsRejectsNullNumber()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => this.CreateService().SendSmsAsync(null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => this.CreateService().SendSmsAsync(null));
         }
 
         [Test]

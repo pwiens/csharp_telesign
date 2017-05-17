@@ -159,13 +159,13 @@ namespace TeleSign.Services.UnitTests
         [Test]
         public async Task TestStandardWebRequest()
         {
-            SerializingWebRequester requester = new SerializingWebRequester();
+            SerializingWebRequester requester = new SerializingWebRequester(
+                HttpMethod.Get,
+                "/v1/phoneid/standard/61811111234",
+                null,
+                this.CreateDefaultQueryString());
 
-            string expectedResponse = requester.ConstructSerializedString(
-                        HttpMethod.Get,
-                        "/v1/phoneid/standard/61811111234",
-                        null,
-                        this.CreateDefaultQueryString());
+            string expectedResponse = requester.ConstructSerializedString();
 
             string actualResponse = await this.CreateService(requester).StandardLookupRawAsync("61811111234");
 
@@ -175,12 +175,12 @@ namespace TeleSign.Services.UnitTests
         [Test]
         public async Task TestContactWebRequest()
         {
-            SerializingWebRequester requester = new SerializingWebRequester();
-            string expectedResponse = requester.ConstructSerializedString(
-                        HttpMethod.Get,
-                        "/v1/phoneid/contact/61811111234",
-                        null,
-                        this.CreateDefaultQueryString());
+            SerializingWebRequester requester = new SerializingWebRequester(
+                HttpMethod.Get,
+                "/v1/phoneid/contact/61811111234",
+                null,
+                this.CreateDefaultQueryString());
+            string expectedResponse = requester.ConstructSerializedString();
 
             string actualResponse = await this.CreateService(requester).ContactLookupRawAsync("61811111234");
 
@@ -190,13 +190,13 @@ namespace TeleSign.Services.UnitTests
         [Test]
         public async Task TestScoreWebRequest()
         {
-            SerializingWebRequester requester = new SerializingWebRequester();
+            SerializingWebRequester requester = new SerializingWebRequester(
+                HttpMethod.Get,
+                "/v1/phoneid/score/61811111234",
+                null,
+                this.CreateDefaultQueryString());
 
-            string expectedResponse = requester.ConstructSerializedString(
-                        HttpMethod.Get,
-                        "/v1/phoneid/score/61811111234",
-                        null,
-                        this.CreateDefaultQueryString());
+            string expectedResponse = requester.ConstructSerializedString();
 
             string actualResponse = await this.CreateService(requester).ScoreLookupRawAsync("61811111234");
 
@@ -206,13 +206,13 @@ namespace TeleSign.Services.UnitTests
         [Test]
         public async Task TestLiveWebRequest()
         {
-            SerializingWebRequester requester = new SerializingWebRequester();
+            SerializingWebRequester requester = new SerializingWebRequester(
+                HttpMethod.Get,
+                "/v1/phoneid/live/61811111234",
+                null,
+                this.CreateDefaultQueryString());
 
-            string expectedResponse = requester.ConstructSerializedString(
-                        HttpMethod.Get,
-                        "/v1/phoneid/live/61811111234",
-                        null,
-                        this.CreateDefaultQueryString());
+            string expectedResponse = requester.ConstructSerializedString();
 
             string actualResponse = await this.CreateService(requester).LiveLookupRawAsync("61811111234");
 
