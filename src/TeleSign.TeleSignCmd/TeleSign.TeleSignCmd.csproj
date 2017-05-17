@@ -11,4 +11,10 @@
     <ProjectReference Include="..\TeleSign.Services\TeleSign.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TeleSign.config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
