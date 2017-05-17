@@ -15,6 +15,7 @@ namespace TeleSign.TeleSignCmd
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using Newtonsoft.Json;
     using TeleSign.Services;
     using TeleSign.Services.PhoneId;
     using TeleSign.Services.Verify;
@@ -97,6 +98,8 @@ namespace TeleSign.TeleSignCmd
 
             PhoneIdService service = new PhoneIdService(GetConfiguration());
             PhoneIdStandardResponse response = await service.StandardLookupAsync(phoneNumber);
+
+            Console.WriteLine(JsonConvert.SerializeObject(response, Formatting.Indented));
         }
         
         [CliCommand(HelpString = "Help me")]

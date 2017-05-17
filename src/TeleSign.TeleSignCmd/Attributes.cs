@@ -12,8 +12,9 @@ namespace TeleSign.TeleSignCmd
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
 
-    internal delegate void CommandDelegate(string[] args);
+    internal delegate Task CommandDelegate(string[] args);
 
     internal static class AttributeHelper
     {
@@ -26,7 +27,7 @@ namespace TeleSign.TeleSignCmd
             MethodInfo[] methods = typeof(Commands).GetMethods(BindingFlags.Static | BindingFlags.Public)
                                   .Where(m => m.GetCustomAttributes(typeof(CliCommandAttribute), false).Any())
                                   .ToArray();
-
+            
             foreach (MethodInfo method in methods)
             {
                 commandLookup.Add(method.Name, (CommandDelegate)method.CreateDelegate(typeof(CommandDelegate)));
