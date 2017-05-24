@@ -7,7 +7,7 @@
     <Company>TeleSign Corporation</Company>
     <Product>TeleSign REST Client</Product>
     <Description>C# client for TeleSign REST API</Description>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>

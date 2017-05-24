@@ -109,8 +109,8 @@ namespace TeleSign.Services
                     builder.AppendFormat(
                                 CultureInfo.InvariantCulture,
                                 "{0}={1}&",
-                                Uri.EscapeDataString(entry.Key),
-                                Uri.EscapeDataString(entry.Value));
+                                WebUtility.UrlEncode(entry.Key),
+                                WebUtility.UrlEncode(entry.Value));
                 }
 
                 // Chop off the trailing &
