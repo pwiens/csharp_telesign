@@ -230,25 +230,27 @@ namespace TeleSign.Services
                 encodedBody = TeleSignService.ConstructQueryString(fields);
             }
 
-            string authorizationString = this.authentication.ConstructAuthorizationString(
-                        resourceName,
-                        method,
-                        timeStamp,
-                        nonce,
-                        contentType, 
-                        encodedBody,
-                        authMethod);
-
-            request.Headers.Add("Authorization", authorizationString);
-            request.Headers.Add("x-ts-auth-method", this.authentication.MapAuthenticationMethodToHeaderString(authMethod));
-            request.Headers.Add("x-ts-date", timeStamp.ToString("r"));
-            request.Headers.Add("x-ts-nonce", nonce);
-
             if (method == HttpMethod.Post)
             {
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 request.Content = new StringContent(encodedBody, Encoding.UTF8, contentType);
             }
+
+            if (request.Content != null) contentType = request.Content.Headers.ContentType.ToString();
+
+            string authorizationString = this.authentication.ConstructAuthorizationString(
+                resourceName,
+                method,
+                timeStamp,
+                nonce,
+                contentType,
+                encodedBody,
+                authMethod);
+
+            request.Headers.Add("Authorization", authorizationString);
+            request.Headers.Add("x-ts-auth-method", this.authentication.MapAuthenticationMethodToHeaderString(authMethod));
+            request.Headers.Add("x-ts-date", timeStamp.ToString("r"));
+            request.Headers.Add("x-ts-nonce", nonce);
 
             return request;
         }
